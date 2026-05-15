@@ -1,3 +1,4 @@
+#include <SDL2/SDL_events.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_video.h>
@@ -6,19 +7,16 @@
 #include <SDL2/SDL_video.h>
 #include <stdbool.h>
 
-#define SQUARE 200
-#define N 5
-#define SCREEN_WIDTH 1000
-#define SCREEN_HEIGHT 1000
+#define N 899
+#define SCREEN_WIDTH 899
+#define SCREEN_HEIGHT 899
 
 int dx[4] = {1, 0, -1, 0};
 int dy[4] = {0, -1, 0, 1};
-int curdir = 0;
 
 bool is_prime(int n){
-    if(n < 2) return false;
     if(n == 2) return true;
-    if(n % 2 == 0) return false;
+    if(n < 2 || n % 2 == 0) return false;
     for(int i = 3; i * i <= n; i++)
         if(n % i == 0)
             return false;
@@ -26,12 +24,10 @@ bool is_prime(int n){
 }
 
 bool is_valid(int currow, int curcol){
-    if(curcol < 0) return false;
-    if(currow < 0) return false;
-    if(curcol >= N) return false;
-    if(currow >= N) return false;
+    if(curcol < 0 || currow < 0 || curcol >= N || currow >= N) return false;
     return true;
 }
+
 void print_arr(int** newarr){
     printf("----------------------------\n");
     for(int i = 0; i < N; i++){
@@ -43,7 +39,7 @@ void print_arr(int** newarr){
     printf("----------------------------\n");
 }
 int** create_spiral(int n){
-    
+    int curdir = 0;    
     int** newarr = malloc(n * sizeof(int*));
     for(int i = 0; i < n; i++){
         *(newarr + i) = malloc(n * sizeof(int));
@@ -57,8 +53,6 @@ int** create_spiral(int n){
     int row = N / 2, col = N / 2;
     *(newarr[row] + col) = ++tel;
     while(tel < N * N){
-        printf("row: %d\n", row);
-        printf("col: %d\n", col);
         if(is_valid(row + dy[curdir], col + dx[curdir])){
             if(*(newarr[row + dy[curdir]] + (col + dx[curdir])) == 0){
                 *(newarr[row + dy[curdir]] + (col + dx[curdir])) = ++tel;
@@ -76,52 +70,63 @@ int** create_spiral(int n){
                 }
             }
         }
-
-        print_arr(newarr);
-        getchar();
-        //printf("%d\n", tel);
-        //tel++;
     }
     return newarr;   
 }
 
-int main() {
-    int arr[5][5] = {
-        {21, 22, 23, 24, 25},
-        {20,  7,  8,  9, 10},
-        {19,  6,  1,  2, 11},
-        {18,  5,  4,  3, 12},
-        {17, 16, 15, 14, 13}
-    };
-    int** spiral = create_spiral(N);
+void render_spiral(int** spiral){
     SDL_Init(SDL_INIT_VIDEO);
-    struct SDL_Window* window = SDL_CreateWindow("Ural Spiral", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    struct SDL_Window* window = SDL_CreateWindow("Ulam Spiral", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     struct SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
+    for(int i = 0; i < N; i++){
+        for(int j = 0; j < N; j++){
+            struct SDL_Rect rect = { i * (SCREEN_HEIGHT / N), j * (SCREEN_WIDTH / N), (SCREEN_HEIGHT / N), (SCREEN_WIDTH / N)};
+            if(is_prime(spiral[i][j]))
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            else    
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 
-    for(int i = 0; i < SCREEN_HEIGHT / 5; i++){
-        for(int j = 0; j < SCREEN_WIDTH / 5; j++){
-            struct SDL_Rect rect = { i * (SCREEN_HEIGHT / 5), j * (SCREEN_WIDTH / 5), SQUARE, SQUARE};
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            if(!is_prime(arr[i][j]))
-                SDL_RenderDrawRect(renderer, &rect);
-            else
-                SDL_RenderFillRect(renderer, &rect);
+            SDL_RenderFillRect(renderer, &rect);
         }
     }
     SDL_RenderPresent(renderer);
-    //SDL_RenderDrawRect(renderer, rect);
-    //SDL_RenderPresent(renderer);
-    //SDL_Delay(10000);
+    SDL_Delay(10000);
+    SDL_Event event;
+    bool quit = false;
+    while(!quit){
+        while(SDL_PollEvent(&event)){
+            if(event.type == SDL_QUIT){
+                quit = true;
+            }
+        }
+    }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    
-    for(int i = 0; i < N; i++){
-        free(*(spiral+ i)); 
+}
+void free_2D_array(int** arr){
+    for(int i = 0; i < N; i++)
+        free(*(arr+ i)); 
+    free(arr);
+}
+int main() {
+    if(N % 2){
+        int** spiral = create_spiral(N);
+        render_spiral(spiral);
+        free_2D_array(spiral);
     }
 
-    free(spiral);
+    for(int i = 900; i >= 750; i--){
+        for(int j = 1; j <= 5; j++){
+            if(i % j == 0){
+                if((i / j) % 2 == 1)
+                    printf("i = %d, j = %d -> i / j = %d\n", i, j, i / j);
+            }
+        }
+    }
+
+
     return 0;
 }
