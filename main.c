@@ -6,7 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
 #include <stdbool.h>
-
+#include <time.h>
 #define N 899
 #define SCREEN_WIDTH 899
 #define SCREEN_HEIGHT 899
@@ -24,44 +24,30 @@ bool is_prime(int n){
 }
 
 bool is_valid(int currow, int curcol){
-    if(curcol < 0 || currow < 0 || curcol >= N || currow >= N) return false;
-    return true;
+    return !(curcol < 0 || currow < 0 || curcol >= N || currow >= N);
 }
 
-void print_arr(int** newarr){
-    printf("----------------------------\n");
-    for(int i = 0; i < N; i++){
-        for(int j = 0; j < N; j++){
-            printf("%d ", *(newarr[i] + j));
-        }
-        printf("\n");
-    }
-    printf("----------------------------\n");
-}
 int** create_spiral(int n){
     int curdir = 0;    
     int** newarr = malloc(n * sizeof(int*));
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < n; i++)
         *(newarr + i) = malloc(n * sizeof(int));
-    }
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < n; j++){
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
             *(newarr[i] + j) = 0;
-        }
-    }
     int tel = 0;
     int row = N / 2, col = N / 2;
     *(newarr[row] + col) = ++tel;
     while(tel < N * N){
-        if(is_valid(row + dy[curdir], col + dx[curdir])){
-            if(*(newarr[row + dy[curdir]] + (col + dx[curdir])) == 0){
-                *(newarr[row + dy[curdir]] + (col + dx[curdir])) = ++tel;
+        int newrow = row + dy[curdir];
+        int newcol =  col + dx[curdir];
+        if(is_valid(newrow, newcol)){
+            if(*(newarr[newrow] + (newcol)) == 0){
+                *(newarr[newrow] + (newcol)) = ++tel;
                 row += dy[curdir];
                 col += dx[curdir];
-                
                 int row_newdir = (row + dy[(curdir + 1) % 4]);
                 int col_newdir = (col + dx[(curdir + 1) % 4]);
-
                 if(is_valid(row_newdir, col_newdir)){
                     if(*(newarr[row_newdir] + col_newdir) == 0)
                         curdir =  (curdir + 1) % 4;
@@ -92,7 +78,7 @@ void render_spiral(int** spiral){
         }
     }
     SDL_RenderPresent(renderer);
-    SDL_Delay(10000);
+    //SDL_Delay(1000);
     SDL_Event event;
     bool quit = false;
     while(!quit){
@@ -102,6 +88,7 @@ void render_spiral(int** spiral){
             }
         }
     }
+    
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -112,21 +99,22 @@ void free_2D_array(int** arr){
     free(arr);
 }
 int main() {
+    float startTime = (float)clock() / CLOCKS_PER_SEC;
     if(N % 2){
         int** spiral = create_spiral(N);
         render_spiral(spiral);
         free_2D_array(spiral);
     }
-
-    for(int i = 900; i >= 750; i--){
+    /*for(int i = 900; i >= 750; i--){
         for(int j = 1; j <= 5; j++){
             if(i % j == 0){
                 if((i / j) % 2 == 1)
                     printf("i = %d, j = %d -> i / j = %d\n", i, j, i / j);
             }
         }
-    }
-
-
+    }*/
+    float endTime = (float)clock()/CLOCKS_PER_SEC;
+    float timeElapsed = endTime - startTime;
+    printf("tijd = %f\n", timeElapsed);
     return 0;
 }
