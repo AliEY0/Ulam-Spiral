@@ -14,14 +14,29 @@
 int dx[4] = {1, 0, -1, 0};
 int dy[4] = {0, -1, 0, 1};
 
-bool is_prime(int n){
+bool* SieveOfEratosthenes(int n)
+{
+    bool* prime = malloc((n + 1) * sizeof(bool));
+    for (int i = 0; i <= n; i++)
+        prime[i] = true;
+    prime[0] = prime[1] = false;
+    for (int p = 2; p <= sqrt(n); p++) {
+        if (prime[p]) {
+            for (int i = p * p; i <= n; i += p)
+                prime[i] = false;
+        }
+    }
+    return prime;
+}
+
+/*bool is_prime(int n){
     if(n == 2) return true;
     if(n < 2 || n % 2 == 0) return false;
     for(int i = 3; i * i <= n; i++)
         if(n % i == 0)
             return false;
     return true;
-}
+}*/
 
 bool is_valid(int currow, int curcol){
     return !(curcol < 0 || currow < 0 || curcol >= N || currow >= N);
@@ -66,10 +81,11 @@ void render_spiral(int** spiral){
     struct SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
+    bool* prime = SieveOfEratosthenes(N * N + 1);
     for(int i = 0; i < N; i++){
         for(int j = 0; j < N; j++){
             struct SDL_Rect rect = { i * (SCREEN_HEIGHT / N), j * (SCREEN_WIDTH / N), (SCREEN_HEIGHT / N), (SCREEN_WIDTH / N)};
-            if(is_prime(spiral[i][j]))
+            if(prime[spiral[i][j]])
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             else    
                 SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -92,6 +108,7 @@ void render_spiral(int** spiral){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    free(prime);
 }
 void free_2D_array(int** arr){
     for(int i = 0; i < N; i++)
