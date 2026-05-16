@@ -1,3 +1,3 @@
 Ulam spiral
 
-![Ulam Spiral](uram_spiral.png)
+![Ulam Spiral](ulam_spiral.png)
