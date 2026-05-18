@@ -8,15 +8,17 @@
 #include <stdbool.h>
 #include <time.h>
 
+/*
 #define N 15
 #define SCREEN_WIDTH 750
 #define SCREEN_HEIGHT 750
+*/
 
-/*
+
 #define N 899
 #define SCREEN_WIDTH 899
 #define SCREEN_HEIGHT 899
-*/
+
 int dx[4] = {1, 0, -1, 0};
 int dy[4] = {0, -1, 0, 1};
 
