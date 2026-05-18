@@ -7,10 +7,16 @@
 #include <SDL2/SDL_video.h>
 #include <stdbool.h>
 #include <time.h>
+
+#define N 15
+#define SCREEN_WIDTH 750
+#define SCREEN_HEIGHT 750
+
+/*
 #define N 899
 #define SCREEN_WIDTH 899
 #define SCREEN_HEIGHT 899
-
+*/
 int dx[4] = {1, 0, -1, 0};
 int dy[4] = {0, -1, 0, 1};
 
@@ -84,7 +90,7 @@ void render_spiral(int** spiral){
     bool* prime = SieveOfEratosthenes(N * N + 1);
     for(int i = 0; i < N; i++){
         for(int j = 0; j < N; j++){
-            struct SDL_Rect rect = { i * (SCREEN_HEIGHT / N), j * (SCREEN_WIDTH / N), (SCREEN_HEIGHT / N), (SCREEN_WIDTH / N)};
+            struct SDL_Rect rect = {j * (SCREEN_HEIGHT / N), i * (SCREEN_WIDTH / N), (SCREEN_HEIGHT / N), (SCREEN_WIDTH / N)};
             if(prime[spiral[i][j]])
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             else    
